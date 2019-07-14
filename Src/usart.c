@@ -103,7 +103,11 @@ void HAL_UART_MspDeInit(UART_HandleTypeDef* uartHandle)
 } 
 
 /* USER CODE BEGIN 1 */
-
+int _write(int fd, uint8_t *pBuffer, int size)
+{
+  HAL_UART_Transmit(&huart1, pBuffer, size, 0xff);
+  return size;
+}
 /* USER CODE END 1 */
 
 /************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/

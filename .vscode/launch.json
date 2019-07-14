@@ -61,7 +61,7 @@
             "request": "launch",
             "servertype": "jlink",
             "cwd": "${workspaceRoot}",
-            "executable": "E:/docunment/1/transplant_LiteOS/transplant/STM32F103ZET/build/STM32F103ZET.elf",
+            "executable": "E:/docunment/1/tinyRTOS/build/STM32F103ZET.elf",
             "name": "Debug (J-Link)",
             "device": "STM32F103ZE",
             "interface": "jtag",

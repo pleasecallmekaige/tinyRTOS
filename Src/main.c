@@ -22,6 +22,8 @@
 #include "main.h"
 #include "usart.h"
 #include "gpio.h"
+#include "os_core.h"
+#include "os_task.h"
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
@@ -35,7 +37,8 @@
 
 /* Private define ------------------------------------------------------------*/
 /* USER CODE BEGIN PD */
-
+#define TASK1_StackSize  200
+uint32  Task1Stack[TASK1_StackSize];
 /* USER CODE END PD */
 
 /* Private macro -------------------------------------------------------------*/
@@ -95,18 +98,26 @@ int main(void)
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
-  my_task1();
+  OS_ENTER_CRITICAL();
+  OS_DEBUG("Welcome TinyRTOS!\n");
+  OS_EXIT_CRITICAL();
+
+  OSInit();
+  OSTaskCreate (my_task1, NULL, &Task1Stack[TASK1_StackSize-1], 5);
+
+  OSStart();
+
   /* USER CODE END 3 */
 }
 
-void my_task1()
+void my_task1(void* arg)
 {
   while(1)
   {
     HAL_GPIO_WritePin(LED0_GPIO_Port, LED0_Pin, GPIO_PIN_RESET);
-    HAL_Delay(500);
+    OSDelay(500);
     HAL_GPIO_WritePin(LED0_GPIO_Port, LED0_Pin, GPIO_PIN_SET);
-    HAL_Delay(500);
+    OSDelay(500);
   }
 }
 

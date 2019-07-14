@@ -18,6 +18,14 @@
     },
     "files.associations": {
         "*.c": "c",
-        "main.h": "c"
+        "main.h": "c",
+        "usart.h": "c",
+        "stm32f1xx_hal.h": "c",
+        "stm32f1xx_hal_conf.h": "c",
+        "os_task.h": "c",
+        "core_cm3.h": "c",
+        "cmsis_gcc.h": "c",
+        "typedef.h": "c",
+        "stdio.h": "c"
     }
 }

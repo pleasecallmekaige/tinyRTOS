@@ -25,6 +25,7 @@
 
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
+#include "stdio.h"
 
 /* USER CODE BEGIN Includes */
 
@@ -41,6 +42,11 @@ void MX_USART1_UART_Init(void);
 /* USER CODE BEGIN Prototypes */
 
 /* USER CODE END Prototypes */
+//#define DEBUG(format, ...) printf (format, ##__VA_ARGS__)
+#define OS_DEBUG(format, ...) printf("OS_DEBUG: ");\
+                          printf (format, ##__VA_ARGS__)
+#define OS_ERROR(format, ...) printf("OS_ERROR: ");\
+                          printf (format, ##__VA_ARGS__)
 
 #ifdef __cplusplus
 }
