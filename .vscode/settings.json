@@ -26,6 +26,9 @@
         "core_cm3.h": "c",
         "cmsis_gcc.h": "c",
         "typedef.h": "c",
-        "stdio.h": "c"
+        "stdio.h": "c",
+        "os_cpu_c.h": "c",
+        "os_core.h": "c",
+        "stm32f103xe.h": "c"
     }
 }

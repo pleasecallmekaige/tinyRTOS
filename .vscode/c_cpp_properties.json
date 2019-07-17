@@ -14,7 +14,8 @@
                 "UNICODE",
                 "_UNICODE",
                 "USE_HAL_DRIVE",
-                "STM32F103xE"
+                "STM32F103xE",
+                "PRINTF"
             ],
             "compilerPath": "D:/App/env/tools/gnu_gcc/arm_gcc/mingw/bin/arm-none-eabi-gcc",
             "cStandard": "c11",
