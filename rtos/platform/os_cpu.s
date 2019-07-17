@@ -1,60 +1,78 @@
-.thumb
-.syntax unified
+    .syntax unified
+    .thumb
+
+.global  PendSV_Handler
 .global  OS_TASK_SW
 .global  OSStartHighRdy
 .extern  OSTCBCurPtr
 .extern  OSTCBHighRdyPtr
-.extern  OS_TASK_SW
 
-@ .equ  NVIC_INT_CTRL,    0xE000ED04                     @ Interrupt control state register.
-@ .equ  NVIC_SYSPRI14,    0xE000ED22                     @ System priority register (priority 14).PendSV的优先级配置地址
-@ .equ  NVIC_PENDSV_PRI,  0xFF                           @ PendSV priority value (lowest).
-@ .equ  NVIC_PENDSVSET,   0x10000000                     @ Value to trigger PendSV exception.
+.equ  NVIC_INT_CTRL,    0xE000ED04                     @ Interrupt control state register.
+.equ  NVIC_PENDSVSET,   0x10000000                     @ Value to trigger PendSV exception.
+.equ  OS_NVIC_SYSPRI2,               0xE000ED20        @ System Handler Priority Register 2. 
+.equ  OS_NVIC_PENDSV_SYSTICK_PRI,    0xFFFF0000        @ SysTick + PendSV priority level (lowest). 
 
-@ OSStartHighRdy:
-@     ldr     R0, =NVIC_SYSPRI14                         @ Set the PendSV exception priority 设置PendSV的优先级为最低
-@     ldr     R1, =NVIC_PENDSV_PRI
-@     strb    R1, [R0]
+.equ  SHCSRvalue,    0x70000
+.equ  SHCSR,         0xE000ED24
 
-@     ldr r4,=OSTCBHighRdyPtr
-@     ldr r5,[r4]
-@     ldr sp,[r5]
-@     b   POP_ALL
 
+    .type OSStartHighRdy, %function
+OSStartHighRdy:
+    ldr     r0, =OS_NVIC_SYSPRI2                         @ Set the PendSV exception priority 设置PendSV的优先级为最低
+    ldr     r1, =OS_NVIC_PENDSV_SYSTICK_PRI
+    str     r1, [r0]
+
+    ldr     r0, =SHCSR                                   @ 打开用法fault,总线fault,存储器管理fault的服务例程使能
+    ldr     r1, =SHCSRvalue
+    str     r1, [r0]
+
+    movs    r0, #0                                              @ Set the PSP to 0 for initial context switch call
+    msr     psp, r0
+
+
+    ldr     r0, =NVIC_INT_CTRL                                  @ Trigger the PendSV exception (causes context switch)
+    ldr     r1, =NVIC_PENDSVSET
+    str     r1, [r0]
+
+    cpsie   i                                                   @ Enable interrupts at processor level
+OSStartHang:
+    b       OSStartHang                                         @ Should never get here
+
+
+
+    .type OS_TASK_SW, %function
 OS_TASK_SW:
-    mov  r4, pc
-    push {r4}
-    mrs  r4, primask
-    push {r4}
-    mrs  r4, xpsr
-    push {r4}
-    push {r0}
-    push {r1}
-    push {r2}
-    push {r3}
-    push {r12}
-    push {lr}
+    ldr     r0, =NVIC_INT_CTRL                                  @ Trigger the PendSV exception (causes context switch)
+    ldr     r1, =NVIC_PENDSVSET
+    str     r1, [r0]
+    bx      lr
+
+
+    .section	.text.PendSV_Handler,"ax",%progbits
+    .type PendSV_Handler, %function
+PendSV_Handler:
+    cpsid i
+    push {r4,r5}
+
+    mrs  r0, psp
+    cbz  r0, PendSV_Handler_NoSave
+
 SaveCurSPtoTCB:
     ldr r4,=OSTCBCurPtr
     ldr r5,[r4]
-    str sp,[r5]
+    mrs r4,psp
+    str r4,[r5]
 
-OSStartHighRdy:
+PendSV_Handler_NoSave:
     ldr r4,=OSTCBHighRdyPtr
     ldr r5,[r4]
-    ldr sp,[r5]
-    b   POP_ALL
+    ldr r4,[r5]
 
-POP_ALL:
-    pop {r4}
-    mov lr, r4
-    pop {r12}
-    pop {r3}
-    pop {r2}
-    pop {r1}
-    pop {r0}
-    pop {r4}
-    msr xpsr, r4
-    pop {r4}
-    msr primask, r4
-    pop {pc}
+    msr psp, r4
+
+    orr lr, lr, #0x04
+
+    pop {r4,r5}
+
+    cpsie i
+    bx lr

@@ -2,11 +2,12 @@
 #define __OS_TASK__
 
 #include "typedef.h"
+#include "stm32f103xe.h"
 
 #define OS_TASKS_MAXNUM 32
 
-#define  OS_ENTER_CRITICAL()  __ASM("CPSID i\n") //Disable Interrupt
-#define  OS_EXIT_CRITICAL()   __ASM("CPSIE i\n") //Enable Interrupt
+#define  OS_ENTER_CRITICAL()  __ASM("cpsid i\n") //Disable Interrupt
+#define  OS_EXIT_CRITICAL()   __ASM("cpsie i\n") //Enable Interrupt
 
 #define IDLETaskStackSize 100
 uint32 IDLETaskStack[IDLETaskStackSize];

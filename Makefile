@@ -124,7 +124,14 @@ C_INCLUDES =  \
 # compile gcc flags
 ASFLAGS = $(MCU) $(AS_DEFS) $(AS_INCLUDES) $(OPT) -Wall -fdata-sections -ffunction-sections
 
-CFLAGS = $(MCU) $(C_DEFS) $(C_INCLUDES) $(OPT) -Wall -fdata-sections -ffunction-sections --specs=nosys.specs # --specs=nano.specs
+CFLAGS = $(MCU) $(C_DEFS) $(C_INCLUDES) $(OPT) -Wall -fdata-sections -ffunction-sections
+
+PRINTF = 1
+
+ifeq ($(PRINTF), 1)
+C_DEFS += -DPRINTF
+# CFLAGS +=--specs=nosys.specs --specs=nano.specs
+endif
 
 ifeq ($(DEBUG), 1)
 CFLAGS += -ggdb -gdwarf-2
@@ -185,7 +192,6 @@ $(BUILD_DIR)/%.hex: $(BUILD_DIR)/%.elf | $(BUILD_DIR)
 	
 $(BUILD_DIR)/%.bin: $(BUILD_DIR)/%.elf | $(BUILD_DIR)
 	@echo 6__ $< ______ $@
-	@echo $(C_SOURCES)
 	$(BIN) $< $@	
 	
 $(BUILD_DIR):

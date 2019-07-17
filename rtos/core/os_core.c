@@ -90,8 +90,10 @@ void IDLE(void* arg)
 {
     //(void*) arg;
     for(;;){
-        int16 delay = 1000;
+        int32 delay = 1000000;
+        OS_ENTER_CRITICAL();
         OS_DEBUG("I'm IDLE\r\n");
+        OS_EXIT_CRITICAL();
         while(delay--);
     }
 }

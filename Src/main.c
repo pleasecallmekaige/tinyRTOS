@@ -37,7 +37,7 @@
 
 /* Private define ------------------------------------------------------------*/
 /* USER CODE BEGIN PD */
-#define TASK1_StackSize  200
+#define TASK1_StackSize  100
 uint32  Task1Stack[TASK1_StackSize];
 /* USER CODE END PD */
 
@@ -55,7 +55,8 @@ uint32  Task1Stack[TASK1_StackSize];
 void SystemClock_Config(void);
 void my_task1();
 /* USER CODE BEGIN PFP */
-
+int count=0;
+uint32 LrValue=0;
 /* USER CODE END PFP */
 
 /* Private user code ---------------------------------------------------------*/
@@ -104,8 +105,17 @@ int main(void)
 
   OSInit();
   OSTaskCreate (my_task1, NULL, &Task1Stack[TASK1_StackSize-1], 5);
-
+  OS_ENTER_CRITICAL();
+  OS_DEBUG("11\n");
+  OS_EXIT_CRITICAL();
   OSStart();
+
+  while(1)
+  {
+    OS_ENTER_CRITICAL();
+    OS_DEBUG("3333!\n");
+    OS_EXIT_CRITICAL();
+  }
 
   /* USER CODE END 3 */
 }
@@ -114,8 +124,14 @@ void my_task1(void* arg)
 {
   while(1)
   {
+    OS_ENTER_CRITICAL();
+    OS_DEBUG("1111\r\n");
+    OS_EXIT_CRITICAL();
     HAL_GPIO_WritePin(LED0_GPIO_Port, LED0_Pin, GPIO_PIN_RESET);
     OSDelay(500);
+    OS_ENTER_CRITICAL();
+    OS_DEBUG("2222\r\n");
+    OS_EXIT_CRITICAL();
     HAL_GPIO_WritePin(LED0_GPIO_Port, LED0_Pin, GPIO_PIN_SET);
     OSDelay(500);
   }

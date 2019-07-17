@@ -42,12 +42,15 @@ void MX_USART1_UART_Init(void);
 /* USER CODE BEGIN Prototypes */
 
 /* USER CODE END Prototypes */
-//#define DEBUG(format, ...) printf (format, ##__VA_ARGS__)
+#ifdef PRINTF
 #define OS_DEBUG(format, ...) printf("OS_DEBUG: ");\
                           printf (format, ##__VA_ARGS__)
 #define OS_ERROR(format, ...) printf("OS_ERROR: ");\
                           printf (format, ##__VA_ARGS__)
-
+#else
+#define OS_DEBUG(format, ...)
+#define OS_ERROR(format, ...)
+#endif
 #ifdef __cplusplus
 }
 #endif
