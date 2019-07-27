@@ -1,10 +1,8 @@
 #include "typedef.h"
 #include "os_task.h"
 #include "os_core.h"
+#include "os_cpu_c.h"
 #include "usart.h"
-
-extern void OSStartHighRdy();
-extern void OS_TASK_SW();
 
 OS_TCB OSTCBArray[32];
 
@@ -19,7 +17,14 @@ OS_TCB*  OSTCBCurPtr = NULL;
 
 OS_TCB*  OSTCBHighRdyPtr = NULL;
 
-
+/**
+  * author: xumingkai
+  * @brief  Update the OSPrioHighRdy value to the current highest priority task's priority
+  * 
+  * @note   None
+  * @param  None
+  * @retval None
+  */
 void OSUpdateHighReadyPrio()
 {
     uint8 OSNextTaskPrio;
@@ -53,6 +58,14 @@ uint8  OSInit (void)
     return 0;
 }
 
+/**
+  * author: xumingkai
+  * @brief  Start the kernel of the system
+  * 
+  * @note   None
+  * @param  None
+  * @retval None
+  */
 uint8  OSStart (void)
 {
     OSUpdateHighReadyPrio();
@@ -62,6 +75,14 @@ uint8  OSStart (void)
     return 0;
 }
 
+/**
+  * author: xumingkai
+  * @brief  The task sched function, replace current task as the BHighRdyPtr task
+  * 
+  * @note   None
+  * @param  None
+  * @retval None
+  */
 void OSSched (void)
 {
     OS_ENTER_CRITICAL();
@@ -76,6 +97,14 @@ void OSSched (void)
     OS_EXIT_CRITICAL();
 }
 
+/**
+  * author: xumingkai
+  * @brief  Delay function
+  * 
+  * @note   None
+  * @param  None
+  * @retval None
+  */
 void OSDelay(uint32 time)
 {
     OS_ENTER_CRITICAL();
@@ -85,7 +114,14 @@ void OSDelay(uint32 time)
     OSSched();
 }
 
-
+/**
+  * author: xumingkai
+  * @brief  The IDLE task function
+  * 
+  * @note   None
+  * @param  None
+  * @retval None
+  */
 void IDLE(void* arg)
 {
     //(void*) arg;
