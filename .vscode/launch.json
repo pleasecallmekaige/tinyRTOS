@@ -67,6 +67,16 @@
             "interface": "jtag",
             "ipAddress": null,
             "serialNumber": null,
+        },
+        {
+            "type": "cortex-debug",
+            "request": "launch",
+            "servertype": "stutil",
+            "cwd": "${workspaceRoot}",
+            "executable": "E:/docunment/1/tinyRTOS/build/STM32F103ZET.elf",
+            "name": "Debug (ST-Util)",
+            "device": "STM32F103ZE",
+            "v1": false
         }
     ]
 }
