@@ -101,12 +101,8 @@ int main(void)
   /* USER CODE BEGIN WHILE */
   OS_ENTER_CRITICAL();
   OS_DEBUG("Welcome TinyRTOS!\n");
-  OS_EXIT_CRITICAL();
-
   OSInit();
   OSTaskCreate (my_task1, NULL, &Task1Stack[TASK1_StackSize-1], 5);
-  OS_ENTER_CRITICAL();
-  OS_DEBUG("11\n");
   OS_EXIT_CRITICAL();
   OSStart();
 

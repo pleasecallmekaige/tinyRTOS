@@ -1,21 +1,31 @@
+#define CORE_GLOBALS
 #include "typedef.h"
 #include "os_task.h"
 #include "os_core.h"
+#include "os_event.h"
 #include "os_cpu_c.h"
 #include "usart.h"
 
-OS_TCB OSTCBArray[32];
+void TaskInit(void)
+{
+    for (int i = 0; i < OS_TASKS_MAXNUM; ++i) {
+        OSTCBArray[i].TaskStackPtr = NULL;
+        OSTCBArray[i].TaskStatus = STOP;//设置所有的任务初始化为STOP
+        OSTCBArray[i].TaskDelay = 0;
+        OSTCBArray[i].TaskPendStatus = 0;
+        OSTCBArray[i].TaskPriority = 0;
+    }
 
-uint32 OSReadyTbl = 0;
+    OSReadyTbl = 0;
 
+    OSPrioCur = 0;
 
-uint8  OSPrioCur = 0;
+    OSPrioHighRdy = 0;
 
-uint8  OSPrioHighRdy = 0;
+    OSTCBCurPtr = NULL;
 
-OS_TCB*  OSTCBCurPtr = NULL;
-
-OS_TCB*  OSTCBHighRdyPtr = NULL;
+    OSTCBHighRdyPtr = NULL;
+}
 
 /**
   * author: xumingkai
@@ -43,9 +53,10 @@ void OSUpdateHighReadyPrio()
   */
 uint8  OSInit (void)
 {
-    for(int i = 0; i < OS_TASKS_MAXNUM; ++i){
-        OSTCBArray[i].TaskStatus = STOP;//设置所有的任务初始化为STOP
-    }
+    TaskInit();
+
+    OSInitEvent();
+
     if(OSTaskCreate(IDLE, NULL, &IDLETaskStack[IDLETaskStackSize-1], 31) == 0){
         OS_DEBUG("Task IDLE create successful!\r\n");
     }
@@ -109,9 +120,11 @@ void OSDelay(uint32 time)
 {
     OS_ENTER_CRITICAL();
     OSTCBArray[OSPrioCur].TaskDelay = time;
+    OSTCBArray[OSPrioCur].TaskStatus = BLOCKING;
     OSReadyTbl &= ~(1<<OSPrioCur);
     OS_EXIT_CRITICAL();
     OSSched();
+    OSTCBArray[OSPrioCur].TaskStatus = RUNING;
 }
 
 /**

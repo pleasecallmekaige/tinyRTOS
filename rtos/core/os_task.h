@@ -15,6 +15,7 @@ uint32 IDLETaskStack[IDLETaskStackSize];
 typedef enum {
     RUNING = 0,
     READY,
+    PEND,
     BLOCKING,
     STOP
 }TASK_STAT;
@@ -24,14 +25,15 @@ typedef enum {
  */
 typedef struct os_tcb {
     OS_STACK_PTR  TaskStackPtr;//The stack pointer
-    OS_STACK_PTR  TaskStackPtrBottom;//The stack bottom pointer
+    // OS_STACK_PTR  TaskStackPtrBottom;//The stack bottom pointer
 
     TASK_STAT  TaskStatus;//Task status
     uint8  TaskPriority;//Task priority
     uint32 TaskDelay;//Task Delay time, In system beats
+    uint8  TaskPendStatus;
 
-    struct os_tcb* OSTCBNextPtr;
-    struct os_tcb* OSTCBPrevPtr;
+    // struct os_tcb* OSTCBNextPtr;
+    // struct os_tcb* OSTCBPrevPtr;
 }OS_TCB;
 
 
