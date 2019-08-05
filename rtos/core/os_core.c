@@ -82,6 +82,7 @@ uint8  OSStart (void)
     OSUpdateHighReadyPrio();
     OSPrioCur = OSPrioHighRdy;
     OSTCBHighRdyPtr = &OSTCBArray[OSPrioHighRdy];
+    OSTCBCurPtr = OSTCBHighRdyPtr;
     OSStartHighRdy();
     return 0;
 }
