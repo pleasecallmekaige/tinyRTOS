@@ -24,10 +24,10 @@ void SysTick_Handler(void)
                 if (OSTCBArray[i].TaskStatus == BLOCKING || OSTCBArray[i].TaskStatus == PEND) {
                     OSReadyTbl |= (1<<OSTCBArray[i].TaskPriority);
                     OSTCBArray[i].TaskStatus = READY;
+                    OSSched();
+                    OSTCBCurPtr->TaskStatus = RUNING;
                 }
             }
         }
     }
-    OSSched();
-    OSTCBCurPtr->TaskStatus = RUNING;
 }
