@@ -51,11 +51,11 @@ OS_TASK_SW:
     .section	.text.PendSV_Handler,"ax",%progbits
     .type PendSV_Handler, %function
 PendSV_Handler:
-    cpsid i
-    push {r4,r5}
+    push {r4,r5,r6,r7}
 
     mrs  r0, psp
     cbz  r0, PendSV_Handler_NoSave
+
 
 SaveCurSPtoTCB:
     ldr r4,=OSTCBCurPtr
@@ -64,15 +64,16 @@ SaveCurSPtoTCB:
     str r4,[r5]
 
 PendSV_Handler_NoSave:
-    ldr r4,=OSTCBHighRdyPtr
-    ldr r5,[r4]
-    ldr r4,[r5]
+    ldr r6,=OSTCBHighRdyPtr
+    ldr r7,[r6]
+    ldr r6,[r7]
 
-    msr psp, r4
+    msr psp, r6
+    ldr r4,=OSTCBCurPtr
+    str r7,[r4]
 
     orr lr, lr, #0x04
 
-    pop {r4,r5}
+    pop {r4,r5,r6,r7}
 
-    cpsie i
     bx lr
