@@ -1,5 +1,6 @@
 #include "typedef.h"
 #include "os_task.h"
+#include "os_core.h"
 #include "stm32f103xe.h"
 
 
@@ -43,4 +44,24 @@ int8  OSTaskCreate (void (*task)(void *p_arg), void *p_arg, OS_STACK_PTR p_Stack
 
     OSTCBArray[prio].TaskStackPtr = p_Stack;
     return 0;
+}
+
+void  OSTaskSusPend ()
+{
+    OS_ENTER_CRITICAL();
+    OSReadyTbl &= ~(1<<OSPrioCur);
+    OSTCBCurPtr->TaskStatus = BLOCKING;
+    OS_EXIT_CRITICAL();
+    OSSched();
+    OSTCBCurPtr->TaskStatus = RUNING;
+}
+
+void  OSTaskResume (uint8 prio)
+{
+    OS_ENTER_CRITICAL();
+    OSReadyTbl |= (1<<OSPrioCur);
+    OSTCBCurPtr->TaskStatus = READY;
+    OS_EXIT_CRITICAL();
+    OSSched();
+    OSTCBCurPtr->TaskStatus = RUNING;
 }
