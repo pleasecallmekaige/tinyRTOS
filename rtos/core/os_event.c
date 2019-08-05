@@ -24,7 +24,7 @@ static uint8 OSGetHighWaitePrio(OS_ECB *pevent)
 {
     uint8 NextTaskPrio;
     OS_ENTER_CRITICAL();
-    for( NextTaskPrio = 0;(NextTaskPrio < OS_TASKS_MAXNUM) && (!(OSReadyTbl & (0x01<<NextTaskPrio))); NextTaskPrio ++ );
+    for( NextTaskPrio = 0;(NextTaskPrio < OS_TASKS_MAXNUM) && (!(pevent->OSEventTbl & (0x01<<NextTaskPrio))); NextTaskPrio ++ );
     OS_EXIT_CRITICAL();
     return NextTaskPrio;
 }
@@ -44,7 +44,7 @@ void OS_EventTaskRdy(OS_ECB *pevent)
 void OSInitEvent(void)
 {
     for (int i = 0; i < OS_TASKS_MAXNUM-1; ++i) {
-        OSECBArray[i].OSEventPtr = &OSECBArray[i];
+        OSECBArray[i].OSEventPtr = &OSECBArray[i+1];
         OSECBArray[i].OSEventCnt = 0;
         OSECBArray[i].OSEventType = UNUSED;
     }
@@ -56,12 +56,10 @@ void OSInitEvent(void)
 OS_ECB *OSSemCreate(int16 cnt)
 {
     OS_ECB *pevent = NULL;
-    OS_ENTER_CRITICAL();
     pevent = OSEventFreeList;
     if (OSEventFreeList != NULL) {
         OSEventFreeList = OSEventFreeList->OSEventPtr;
     }
-    OS_EXIT_CRITICAL();
     if (pevent != NULL) {
         pevent-> OSEventType = SEM;
         pevent-> OSEventCnt = cnt;
@@ -74,7 +72,7 @@ OS_ECB *OSSemCreate(int16 cnt)
 void OS_EventTO(OS_ECB *pevent)
 {
     OS_ENTER_CRITICAL();
-    pevent->OSEventTbl &= ~(1<<OSPrioCur);
+    pevent->OSEventTbl &= ~(1<<OSPrioCur); // 如果超时的话,把当前的任务在等待表中清除掉。
     OS_EXIT_CRITICAL();
 }
 
@@ -114,7 +112,7 @@ void OSSemPend(OS_ECB *pevent, uint16 timeout, uint8 *perr)
     OS_EXIT_CRITICAL();
 }
 
-uint8 OSSemPOST(OS_ECB *pevent)
+uint8 OSSemPost(OS_ECB *pevent)
 {
     if (pevent->OSEventType != SEM) {   /* Validate event block type                     */
         return (OS_ERR_EVENT_TYPE);
@@ -124,7 +122,7 @@ uint8 OSSemPOST(OS_ECB *pevent)
                                                       /* Ready HPT waiting on event                    */
         OS_EventTaskRdy(pevent);
         OS_EXIT_CRITICAL();
-        OSSched();                                   /* Find HPT ready to run                         */
+        // OSSched();                                   /* Find HPT ready to run                         */
         return (OS_ERR_NONE);
     }
     if (pevent->OSEventCnt < 65535u) {                /* Make sure semaphore will not overflow         */

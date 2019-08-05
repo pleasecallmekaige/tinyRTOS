@@ -24,6 +24,7 @@
 #include "gpio.h"
 #include "os_core.h"
 #include "os_task.h"
+#include "os_event.h"
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
@@ -39,6 +40,8 @@
 /* USER CODE BEGIN PD */
 #define TASK1_StackSize  100
 uint32  Task1Stack[TASK1_StackSize];
+#define TASK2_StackSize  100
+uint32  Task2Stack[TASK2_StackSize];
 /* USER CODE END PD */
 
 /* Private macro -------------------------------------------------------------*/
@@ -53,10 +56,12 @@ uint32  Task1Stack[TASK1_StackSize];
 
 /* Private function prototypes -----------------------------------------------*/
 void SystemClock_Config(void);
-void my_task1();
+void my_task1(void *arg);
+void my_task2(void *arg);
 /* USER CODE BEGIN PFP */
 int count=0;
 uint32 LrValue=0;
+OS_ECB *g_semPrint = NULL;
 /* USER CODE END PFP */
 
 /* Private user code ---------------------------------------------------------*/
@@ -83,10 +88,8 @@ int main(void)
   /* USER CODE BEGIN Init */
 
   /* USER CODE END Init */
-
   /* Configure the system clock */
   SystemClock_Config();
-
   /* USER CODE BEGIN SysInit */
 
   /* USER CODE END SysInit */
@@ -99,19 +102,12 @@ int main(void)
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
-  OS_ENTER_CRITICAL();
   OS_DEBUG("Welcome TinyRTOS!\n");
   OSInit();
+  g_semPrint = OSSemCreate(0);
   OSTaskCreate (my_task1, NULL, &Task1Stack[TASK1_StackSize-1], 5);
-  OS_EXIT_CRITICAL();
+  OSTaskCreate (my_task2, NULL, &Task2Stack[TASK2_StackSize-1], 6);
   OSStart();
-
-  while(1)
-  {
-    OS_ENTER_CRITICAL();
-    OS_DEBUG("3333!\n");
-    OS_EXIT_CRITICAL();
-  }
 
   /* USER CODE END 3 */
 }
@@ -120,27 +116,27 @@ void my_task1(void* arg)
 {
   while(1)
   {
+    uint8 perr;
+    OSSemPend(g_semPrint, 10000, &perr);
     OS_ENTER_CRITICAL();
     OS_DEBUG("1111\r\n");
     OS_EXIT_CRITICAL();
     HAL_GPIO_WritePin(LED0_GPIO_Port, LED0_Pin, GPIO_PIN_RESET);
     OSDelay(500);
-    OS_ENTER_CRITICAL();
-    OS_DEBUG("2222\r\n");
-    OS_EXIT_CRITICAL();
     HAL_GPIO_WritePin(LED0_GPIO_Port, LED0_Pin, GPIO_PIN_SET);
     OSDelay(500);
   }
 }
 
-void my_task2()
+void my_task2(void* arg)
 {
   while(1)
   {
-    HAL_GPIO_WritePin(LED1_GPIO_Port, LED1_Pin, GPIO_PIN_RESET);
-    HAL_Delay(500);
-    HAL_GPIO_WritePin(LED1_GPIO_Port, LED1_Pin, GPIO_PIN_SET);
-    HAL_Delay(500);
+    OS_ENTER_CRITICAL();
+    OS_DEBUG("2222\r\n");
+    OS_EXIT_CRITICAL();
+    OSSemPost(g_semPrint);
+    OSDelay(500);
   }
 }
 
